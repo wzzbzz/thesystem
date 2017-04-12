@@ -8,43 +8,24 @@ class User extends Item{
     public $password;
     public $roles;
     
-    public function __construct($args=null){
+    public function __construct($key){
         
-        if(!empty($args)){
-            $this->username = $args['username'];
-            $this->userdir = $this->dir.$this->username."/";
-            $this->userfile = $this->userdir."info.json";
-            if($this->exists()){
-                $json = file_get_contents($this->userfile);
-                $userdata = json_decode($json);
-                $this->username = $userdata->username;
-                $this->password = $userdata->password;
-            }
-        }
-    }
-    public function __destruct(){}
-    
-    public function get_username(){}
-    public function set_username(){}
-    
-    public function get_display_name(){}
-    public function set_user_name(){}
-    
-    public function add_role(){}
-    public function delete_role(){}
-    
-    public function create(){}
-    
-    public function save(){}
-    
-    public function login(){}
-    public function logout(){}
-   
-    public function exists(){
-        return file_exists($this->userfile);
+        parent::__construct($key,USERS);
+        $this->username = $key;
+        
     }
     
-    public function validate($password){             
+    public function login(){
+        @session_start();
+        $_SESSION['username'] = $this->username;
+    }
+    public function logout(){
+        session_destroy();
+    }
+    public function set_password($password){
+        $this->password = password_hash($password, PASSWORD_DEFAULT, ['cost' => 12]);
+    }
+    public function validate($password){    
         return password_verify($password, $this->password);
     }
 }
@@ -55,17 +36,12 @@ class Users extends Collection{
     private $dir;
     
     public function __construct($dir=null){
-        if(!empty($dir)){
-            $this->dir = $dir;
-        }
-        else{
-            $this->dir = $this->dir;
-        }
+      
     }
     
     public function get_users(){
-        $users = array();
-        $users_dir = new DirectoryIterator($this->dir);
+        $users = parent::get_collection($this->dir);
+        diebug($users);
         foreach($users_dir as $user_dir){
           if($user_dir->isDot()){
               continue;

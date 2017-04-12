@@ -10,8 +10,7 @@ class Song extends Item{
     public $lyrics;
     
     public function __construct($key=null){
-        $this->key = $key;
-        $this->dir = SONGS.$key."/";
+        parent::__construct($key,SONGS);
         $this->recordings = new Recordings($this->dir);
         if($this->exists()){
             $this->load();

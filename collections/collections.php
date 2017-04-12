@@ -4,13 +4,14 @@ class Item{
     public $key;
     public $path;
     public $dir;
-    public function __construct($key=null){
+    public function __construct($key=null,$dir=null){
         $this->key = $key;
+        $this->dir = $dir;
+        $this->path = $dir.$key;
         
         if($this->exists()){
             $this->load();
         }
-        
     }
     public function __destruct(){}
     
@@ -18,7 +19,7 @@ class Item{
         if (!$this->exists()){
             $this->create();
         }
-        $filename = $this->dir."/info.json";
+        $filename = $this->path."/info.json";
 
         $fh = fopen($filename,"w");
         fwrite($fh, json_encode($this));
@@ -27,14 +28,13 @@ class Item{
     }
     
     public function create(){
-        debug($this->dir);
-        mkdir($this->dir);
+        mkdir($this->path);
         $vars = get_object_vars($this);
        
         foreach($vars as $var){
             if("Collection" == get_parent_class($var)){
                 $collection = "_".strtolower(get_class($var));
-                $dir = $this->dir.$collection;
+                $dir = $this->path.$collection;
                 mkdir($dir);
             }
             
@@ -44,7 +44,7 @@ class Item{
     
     public function load(){
         
-        $info = json_decode(file_get_contents($this->dir."/info.json"));
+        $info = json_decode(file_get_contents($this->path."/info.json"));
         
         foreach($info as $key=>$value){
             if(!is_object($value)){
@@ -54,7 +54,7 @@ class Item{
 
     }
     public function exists(){
-        return file_exists($this->dir);
+        return file_exists($this->path);
     }  
     
 }
