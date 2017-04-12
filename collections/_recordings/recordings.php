@@ -23,8 +23,9 @@ class Recording extends Item{
         
         public function render_file(){
             $url = str_replace(APP_ROOT, "", $this->path);
-            
-            if(strpos(mime_content_type($this->path),"audio")>-1){
+            $fh = finfo_open(FILEINFO_MIME);
+            $finfo = finfo_file($fh, $this->path);
+            if( strpos( $finfo , "audio" ) > -1 ){
                 $str = '<h3>'.$this->title.'</h3>';
                 $str .= '<audio controls style="width:500px">
                     <source src="'.$url.'" type="audio/mp3">
