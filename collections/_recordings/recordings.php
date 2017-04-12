@@ -28,7 +28,7 @@ class Recording extends Item{
             if( strpos( $finfo , "audio" ) > -1 ){
                 $str = '<h3>'.$this->title.'</h3>';
                 $str .= '<audio controls style="width:500px">
-                    <source src="'.$url.'" type="audio/mp3">
+                    <source src="'.BASEURL.$url.'" type="audio/mp3">
                 </audio>';
                 
                 echo $str;
