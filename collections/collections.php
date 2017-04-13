@@ -2,9 +2,10 @@
 
 class Item{
     public $key;
-    public $path;
     public $dir;
+        public $path;
     public function __construct($key=null,$dir=null){
+        
         $this->key = $key;
         $this->dir = $dir;
         $this->path = $dir.$key;

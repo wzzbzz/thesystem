@@ -1,13 +1,12 @@
 <?php
-require_once "system/collections/collections.php";
+require_once APP_ROOT."/system/collections/collections.php";
 
 class Recording extends Item{
         public $title;
         public $location;
         public $type;
-        public function __construct($key = null){
-            $this->key = $key;
-            parent::__construct($key);
+        public function __construct($key = null, $dir = null){
+            parent::__construct($key,$dir);
         }
         public function __destruct(){}
         public function render(){
@@ -51,7 +50,7 @@ class Recordings extends Collection{
 
             foreach($keys as $key){
                 
-                $recording = new Recording($key);
+                $recording = new Recording($key,$this->dir);
                 $recording->dir = $this->dir.$key;
                 $recording->load();
                 $_[] = $recording;
