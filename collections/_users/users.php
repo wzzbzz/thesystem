@@ -1,7 +1,9 @@
 <?php
+
+require_once "system/entities/entities.php";
 require_once "system/collections/collections.php";
 
-class User extends Item{
+class User extends Entity{
     
     public $username;
     public $display_name;

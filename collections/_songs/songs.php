@@ -1,20 +1,21 @@
 <?php
+require_once APP_ROOT."/system/entities/entities.php";
 require_once APP_ROOT."/system/collections/collections.php";
 require_once APP_ROOT."/system/collections/_recordings/recordings.php";
 
-
 class Song extends Item{
+    
     public $title;
     public $author;
     public $recordings;
     public $lyrics;
     
-    public function __construct($key=null, $dir=SONGS){
-        parent::__construct($key,$dir);
+    public function __construct($key,$home){
+        parent::__construct($key,$home);
+
+        $this->recordings = new Recordings($this->self);
         
-        $this->recordings = new Recordings($this->path);
-       
-        if($this->exists()){
+        if($this->__exists()){
             $this->load();
         }
     }
@@ -31,9 +32,10 @@ class Song extends Item{
 
 class Songs extends Collection{
 
-    public function __construct($path){
-        parent::__construct($path);
+    public function __construct($home){
+        parent::__construct($home);
     }
+    
     public function __destruct(){}
     
     public function get_songs(){

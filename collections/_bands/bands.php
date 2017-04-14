@@ -8,13 +8,13 @@ class Member extends User{
         
 }
 
-class Band{
+class Band extends Entity{
     private $members;
     public $songs;
-    public function __construct($key, $dir){
-        $this->dir = $dir;
+    public function __construct($key, $home){
+        parent::__construct($key,$home);
         //$this->members = new Users(MEMBERS);
-        $this->songs = new Songs($dir.$key."/");
+        $this->songs = new Songs($this->self);
 
     }
     public function __destruct(){
@@ -25,9 +25,13 @@ class Band{
         $_ = array();
         $songs = $this->songs->get_collection();
         foreach($songs as $songid){
-            $_[] = new Song($songid);
+            $_[] = new Song( $songid,$this->songs->self );
         }
         return $_;
+    }
+    
+    public function add_song(){
+        
     }
     
     public function get_members(){
@@ -35,12 +39,14 @@ class Band{
     }
 
     public function delete(){}
+    
+    public function load(){
+        return;
+    }
 }
 
-class Bands extends Collections{
-    
-    private $members;
-    private $songs;
+class Bands extends Collection{
+   
     
     public function __construct($args=null){
         parent::__construct($args);
@@ -49,9 +55,9 @@ class Bands extends Collections{
     public function __destruct(){
         parent::__destruct();
     }
-    
+  
     public function get_bands(){
-        return parent::get_collection(BANDS);
+        return parent::get_collection();
     }
         
 }

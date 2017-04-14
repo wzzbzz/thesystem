@@ -10,6 +10,7 @@ class Recording extends Item{
         }
         public function __destruct(){}
         public function render(){
+
             $method = "render_".$this->type;
             
             $this->$method();
@@ -50,11 +51,12 @@ class Recordings extends Collection{
         public function __destruct(){}
         public function get_recordings(){
             $_ = array();
-            $keys = parent::get_collection($this->dir);
+            
+            $keys = parent::get_collection($this->self);
             
             foreach($keys as $key){
 
-                $recording = new Recording($key,$this->dir);
+                $recording = new Recording($key,$this->self);
                 
                 $_[] = $recording;
             }
