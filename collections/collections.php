@@ -1,18 +1,22 @@
 <?php
 
 class Item{
-    public $key;
-    public $dir;
-        public $path;
+    
+    public $key;  // locally unique identifier
+    public $dir;  // container folder to which this item is attached
+    public $path; // path to this item, its resources and info.json file
+    
     public function __construct($key=null,$dir=null){
-        
+
         $this->key = $key;
         $this->dir = $dir;
-        $this->path = $dir.$key;
+        
+        $this->path = $dir.$key."/";
         
         if($this->exists()){
             $this->load();
         }
+        
     }
     public function __destruct(){}
     
@@ -20,6 +24,7 @@ class Item{
         if (!$this->exists()){
             $this->create();
         }
+        
         $filename = $this->path."/info.json";
 
         $fh = fopen($filename,"w");
@@ -29,14 +34,15 @@ class Item{
     }
     
     public function create(){
+        
         mkdir($this->path);
+
         $vars = get_object_vars($this);
        
         foreach($vars as $var){
+            
             if("Collection" == get_parent_class($var)){
-                $collection = "_".strtolower(get_class($var));
-                $dir = $this->path.$collection;
-                mkdir($dir);
+                $var->create();
             }
             
         }
@@ -45,8 +51,8 @@ class Item{
     
     public function load(){
         
-        $info = json_decode(file_get_contents($this->path."/info.json"));
-        
+        $info = json_decode(file_get_contents($this->path."info.json"));
+
         foreach($info as $key=>$value){
             if(!is_object($value)){
                $this->$key = $value;
@@ -61,14 +67,18 @@ class Item{
 }
 
 class Collection{
-    private $dir;
+    public $dir;
     public function __construct($dir){
-        $this->dir = $dir;
+        $this->dir = $dir."_".strtolower(get_class($this))."/";
     }
     public function __destruct(){}
+    
+    public function create(){
+        if(!file_exists($this->dir))
+            mkdir($this->dir);
+    }
     public function get_collection(){
         $_ = array();
-        
         $items = new DirectoryIterator($this->dir);
         foreach($items as $item){
           if($item->isDir() && !$item->isDot()){

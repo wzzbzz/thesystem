@@ -33,8 +33,6 @@ class User extends Item{
 
 class Users extends Collection{
     
-    private $dir;
-    
     public function __construct($dir=null){
       
     }

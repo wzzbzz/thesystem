@@ -1,17 +1,19 @@
 <?php
-require_once "system/collections/collections.php";
-require_once "system/collections/_recordings/recordings.php";
+require_once APP_ROOT."/system/collections/collections.php";
+require_once APP_ROOT."/system/collections/_recordings/recordings.php";
 
-##TBD extend from container
+
 class Song extends Item{
     public $title;
     public $author;
     public $recordings;
     public $lyrics;
     
-    public function __construct($key=null){
-        parent::__construct($key,SONGS);
-        $this->recordings = new Recordings($this->dir);
+    public function __construct($key=null, $dir=SONGS){
+        parent::__construct($key,$dir);
+        
+        $this->recordings = new Recordings($this->path);
+       
         if($this->exists()){
             $this->load();
         }
@@ -29,8 +31,8 @@ class Song extends Item{
 
 class Songs extends Collection{
 
-    public function __construct(){
-        parent::__construct(SONGS);
+    public function __construct($path){
+        parent::__construct($path);
     }
     public function __destruct(){}
     

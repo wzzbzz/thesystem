@@ -8,13 +8,14 @@ class Member extends User{
         
 }
 
-class Band {
+class Band{
     private $members;
     public $songs;
-    public function __construct(){  
-       
-        $this->members = new Users(MEMBERS);
-        $this->songs = new Songs();
+    public function __construct($key, $dir){
+        $this->dir = $dir;
+        //$this->members = new Users(MEMBERS);
+        $this->songs = new Songs($dir.$key."/");
+
     }
     public function __destruct(){
 
@@ -32,8 +33,7 @@ class Band {
     public function get_members(){
         return $this->members->get_collection();
     }
-    
-    public function create(){}
+
     public function delete(){}
 }
 
