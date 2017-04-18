@@ -17,17 +17,17 @@ class Recording extends Item{
         }
         
         public function render_embed(){
-            $code = file_get_contents( $this->path."embed.code" );
+            $code = file_get_contents( $this->self."embed.code" );
             echo  '<h3>'.$this->title.'</h3>';
             echo $code;
         }
         
         public function render_file(){
                 
-            $url = str_replace(APP_ROOT, "", $this->path.$this->key);
+            $url = str_replace(APP_ROOT, "", $this->self.$this->key);
             
             $fh = finfo_open(FILEINFO_MIME);
-            $finfo = finfo_file($fh, $this->path.$this->key);
+            $finfo = finfo_file($fh, $this->self.$this->key);
  
             if( strpos( $finfo , "audio" ) > -1 ){
                 $str = '<h3>'.$this->title.'</h3>';
@@ -55,7 +55,7 @@ class Recordings extends Collection{
             $keys = parent::get_collection($this->self);
             
             foreach($keys as $key){
-
+               
                 $recording = new Recording($key,$this->self);
                 
                 $_[] = $recording;

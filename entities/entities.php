@@ -9,9 +9,6 @@ class Entity {
     private $users;
     
     public function __construct($key,$home){
-        if(!file_exists($home)){
-            return false;
-        }
         
         $this->key = $key;
         $this->home = $home;
@@ -21,28 +18,52 @@ class Entity {
             $this->load();
         }
     }
+    
     public function __destruct(){
         
     }
     
     public function create(){
         
+        // fail if housing folder nonexistent.  Also check for write perms.  
+        if(!file_exists($this->home)){
+            return false;
+        }
+        
+        // create containing folder.
         mkdir($this->self);
 
         $vars = get_object_vars($this);
-       
+        
+        // create ancillaries
         foreach($vars as $var){
             if(is_object($var)){
                 $var->create();
             }            
         }
+        
         return true;
     }
     
+    public function save(){
+        
+        if (!$this->__exists()){
+            $this->create();
+        }
+        
+        $filename = $this->self."/info.json";
+
+        $fh = fopen($filename,"w");
+        fwrite($fh, json_encode($this));
+        
+        fclose($fh);
+        
+    }
+      
     public function load(){
         
         $info = json_decode(file_get_contents($this->self."info.json"));
-
+        
         foreach($info as $key=>$value){
             if(!is_object($value)){
                $this->$key = $value;

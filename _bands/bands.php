@@ -11,6 +11,9 @@ class Member extends User{
 class Band extends Entity{
     private $members;
     public $songs;
+    public $shows;
+    public $site;
+    public $manager;
     public function __construct($key, $home){
         parent::__construct($key,$home);
         //$this->members = new Users(MEMBERS);
@@ -23,6 +26,7 @@ class Band extends Entity{
     
     public function get_songs(){
         $_ = array();
+        $songs = $this->songs->get_songs();
         $songs = $this->songs->get_collection();
         foreach($songs as $songid){
             $_[] = new Song( $songid,$this->songs->self );

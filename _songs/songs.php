@@ -1,7 +1,7 @@
 <?php
 require_once APP_ROOT."/system/entities/entities.php";
 require_once APP_ROOT."/system/collections/collections.php";
-require_once APP_ROOT."/system/collections/_recordings/recordings.php";
+require_once APP_ROOT."/system/_recordings/recordings.php";
 
 class Song extends Item{
     
@@ -14,7 +14,6 @@ class Song extends Item{
         parent::__construct($key,$home);
 
         $this->recordings = new Recordings($this->self);
-        
         if($this->__exists()){
             $this->load();
         }
@@ -42,7 +41,7 @@ class Songs extends Collection{
         $keys = parent::get_collection();
         $_ = array();
         foreach($keys as $key){
-            $song = new Song($key);
+            $song = new Song($key,$this->self);
             $_[] = $song;
         }
         return $_;

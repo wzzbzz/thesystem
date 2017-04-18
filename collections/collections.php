@@ -37,6 +37,10 @@ class Collection extends Entities{
         }
     }
     
+    public function find($key){
+        return file_exists($this->self.$key);
+    }
+    
     public function load(){
         return;
     }
