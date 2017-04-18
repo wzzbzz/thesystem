@@ -35,13 +35,13 @@ class User extends Entity{
 
 class Users extends Collection{
     
-    public function __construct($dir=null){
-      
+    public function __construct($home){
+        parent::__construct($home);
     }
     
     public function get_users(){
         $users = parent::get_collection($this->dir);
-        diebug($users);
+
         foreach($users_dir as $user_dir){
           if($user_dir->isDot()){
               continue;
@@ -56,26 +56,7 @@ class Users extends Collection{
         return (file_exists($user_dir) && is_dir($user_dir));
         
     }
-    
-    public function create($args=array()){
-        if(empty($args['username'])){
-            return false;
-        }
-        if($this->user_exists($args['username'])){
-            return false;
-        }
-        else{
-            $dir=$this->dir.$args['username'];
-            mkdir($dir);
-            $user = new stdClass();
-            $user->username=$args['username'];
-            $user->password=password_hash($args['password'], PASSWORD_DEFAULT, ['cost' => 12]);
-            $fh = fopen ($dir."/info.json","w");
-            fwrite($fh, json_encode($user));
-            fclose($fh);
-            return true;
-        }
-    }
+
     
     public function delete($username){
         if(!$this->user_exists($username)){

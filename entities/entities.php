@@ -1,12 +1,11 @@
 <?php
 
 class Entity {
-    private $user;
+
     public $key;
     public $home;  // CONTAINING FOLDER
     public $self;
     
-    private $users;
     
     public function __construct($key,$home){
         
@@ -25,31 +24,29 @@ class Entity {
     
     public function create(){
         
-        // fail if housing folder nonexistent.  Also check for write perms.  
+        // fail if housing folder nonexistent.  Also check for write perms.
+        debug(get_class($this));
         if(!file_exists($this->home)){
             return false;
         }
         
-        // create containing folder.
-        mkdir($this->self);
+        if(!file_exists($this->self))// create containing folder.
+            mkdir($this->self);
 
         $vars = get_object_vars($this);
         
         // create ancillaries
-        foreach($vars as $var){
+        foreach($vars as $key=>$var){
             if(is_object($var)){
                 $var->create();
             }            
         }
         
+        $this->save();
         return true;
     }
     
     public function save(){
-        
-        if (!$this->__exists()){
-            $this->create();
-        }
         
         $filename = $this->self."/info.json";
 
@@ -73,7 +70,7 @@ class Entity {
     }
     
     public function __exists(){
-        return file_exists($this->self);
+        return file_exists($this->self) && file_exists($this->self."info.json");
     }
     
     
