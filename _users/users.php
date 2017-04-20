@@ -10,9 +10,9 @@ class User extends Entity{
     public $password;
     public $roles;
     
-    public function __construct($key){
+    public function __construct($key,$home){
         
-        parent::__construct($key,USERS);
+        parent::__construct($key,$home);
         $this->username = $key;
         
     }
@@ -40,19 +40,17 @@ class Users extends Collection{
     }
     
     public function get_users(){
-        $users = parent::get_collection($this->dir);
-
-        foreach($users_dir as $user_dir){
-          if($user_dir->isDot()){
-              continue;
-          }
-          $users[] = $user_dir->__toString();
+        $users = parent::get_collection();
+        $_ = array();
+        foreach($users as $user){
+            $_[] = new User($user, $this->self);
         }
-        return $users;
+        
+        return $_;
     }
     
     public function user_exists($username){
-        $user_dir = $this->dir.$username;
+        $user_dir = $this->self.$username;
         return (file_exists($user_dir) && is_dir($user_dir));
         
     }
@@ -67,26 +65,7 @@ class Users extends Collection{
         }
           
     }
-    
-    public function login($args){
-        $requires = array("variables"=>array("username","password"),"filters"=>array("user_exists"=>array("username")));
-        // check required vars
-        
-        if(!$this->check_arguments($requires,$args)){
-
-            return false;
-        }
-        
-        $user = new User(array("username"=>$args['username']));
-        if ($user->validate($args['password'])){
-            @session_start();
-            $_SESSION['username'] = $args['username'];
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
+   
     
     public function check_arguments($requires,$args){
         $valid=true;
@@ -95,13 +74,7 @@ class Users extends Collection{
         }
         return $valid;
     }
-    
-    public function logout_current(){
-        
-        if(session_id())
-            session_destroy();
-        return true;
-    }
+
     
     public function __destruct(){}
     

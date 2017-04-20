@@ -25,7 +25,7 @@ class Entity {
     public function create(){
         
         // fail if housing folder nonexistent.  Also check for write perms.
-        debug(get_class($this));
+        
         if(!file_exists($this->home)){
             return false;
         }
@@ -43,6 +43,7 @@ class Entity {
         }
         
         $this->save();
+        
         return true;
     }
     
@@ -51,6 +52,7 @@ class Entity {
         $filename = $this->self."/info.json";
 
         $fh = fopen($filename,"w");
+        
         fwrite($fh, json_encode($this));
         
         fclose($fh);
@@ -60,6 +62,9 @@ class Entity {
     public function load(){
         
         $info = json_decode(file_get_contents($this->self."info.json"));
+
+        if(empty($info))
+            return;
         
         foreach($info as $key=>$value){
             if(!is_object($value)){
