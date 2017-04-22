@@ -1,5 +1,5 @@
 <?php
-require_once "system/_users/users.php";
+require_once APP_ROOT."system/_users/users.php";
 
 class Game extends Entity{
     
@@ -10,11 +10,13 @@ class Game extends Entity{
     public $stage;
     public $states;
     public $state;
+    public $player;
     
     public function __construct($key, $home, $args=null){
         parent::__construct($key,$home);
-        $this->players = new Users("players",$this->self);
-        $this->admins = new Users("admins", $this->self);
+        // proper way to do this is to create Players and Admins classes.
+        $this->players = new Users($this->self,"players");
+        $this->admins = new Users($this->self, "admins");
        
     }
     
@@ -51,6 +53,23 @@ class Game extends Entity{
         }
     }
     
+    public function join($user){
+        if(!is_object($user)){
+            return false;
+        }
+        
+        $this->add_player($user);
+        
+    }
+    
+    public function is_admin($user){
+        //note this is a result of some slop upstream.
+        //Code this away:   Make a decision, create objects earlier and store, or store keys and load objects on execution
+        if (is_object($user)){
+            
+        }
+        return $this->admins->in($user);
+    }
     
     public function destroy(){}
     

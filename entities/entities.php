@@ -61,8 +61,13 @@ class Entity {
       
     public function load(){
         
-        $info = json_decode(file_get_contents($this->self."info.json"));
+        if(is_link($this->self)){
+            diebug("THIS WAS FORESEEN BUT UNABLE TO TRIGGER...UNTIL NOW!!! What happens when PHP won't follow the symlink?");
+        }
+        else{
 
+            $info = json_decode(file_get_contents($this->self."info.json"));
+        }
         if(empty($info))
             return;
         
@@ -92,14 +97,27 @@ class Entity {
         $parent = new $parent_class($this->key, $this->home);
         return $parent->is_class($class);
     }
+    
+    
+    // create a link at $destination which points to $this->self;
+    public function link($destination){
+        link($this->self, $destination);
+    }
+   
 }
 
 class Entities extends Entity{
     
     private $entities;
     
-    public function __construct($home){
-        $key = "_".strtolower(get_class($this));
+    public function __construct($home, $key=null){
+        if(empty($key)){
+            $key = "_".strtolower(get_class($this));
+
+        }
+        else{
+            $key = "_".$key;
+        }
         parent::__construct($key, $home);
     }
     
@@ -110,6 +128,16 @@ class Entities extends Entity{
         // extensions will create their own homes within it.
         parent::__construct($key);
         
+    }
+    
+    public function link($entity){
+        if(!file_exists($this->self.$entity->key)){
+            symlink($entity->self, $this->self.$entity->key);
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 }
 

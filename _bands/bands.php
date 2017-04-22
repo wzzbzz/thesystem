@@ -1,8 +1,8 @@
 <?php
 
-require_once "system/collections/collections.php";
-require_once "system/_users/users.php";
-require_once "system/_songs/songs.php";
+require_once APP_ROOT."system/collections/collections.php";
+require_once APP_ROOT."system/_users/users.php";
+require_once APP_ROOT."system/_songs/songs.php";
 
 class Member extends User{
         

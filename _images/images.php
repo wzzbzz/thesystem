@@ -1,13 +1,12 @@
 <?php
 
-require_once "system/collections/collections.php";
+require_once APP_ROOT."system/collections/collections.php";
 
 class Image extends Item{
         public $title;
-        public $location;
 
-        public function __construct($key = null, $dir = null){
-            parent::__construct($key,$dir);
+        public function __construct($key = null, $home = null){
+            parent::__construct($key,$home);
         }
         public function __destruct(){}
 }
@@ -19,6 +18,7 @@ class Images extends Collection{
         }
         
         public function __destruct(){}
+        
         public function get_image(){
             $_ = array();
             

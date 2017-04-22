@@ -1,7 +1,7 @@
 <?php
 
-require_once "system/entities/entities.php";
-require_once "system/collections/collections.php";
+require_once APP_ROOT."system/entities/entities.php";
+require_once APP_ROOT."system/collections/collections.php";
 
 class User extends Entity{
     
@@ -35,8 +35,9 @@ class User extends Entity{
 
 class Users extends Collection{
     
-    public function __construct($home){
-        parent::__construct($home);
+    public function __construct($home, $key=null){
+        
+        parent::__construct($home,$key);
     }
     
     public function get_users(){
@@ -66,14 +67,7 @@ class Users extends Collection{
           
     }
    
-    
-    public function check_arguments($requires,$args){
-        $valid=true;
-        foreach($requires['variables'] as $variable){
-            $valid = $valid && !empty($variable);
-        }
-        return $valid;
-    }
+
 
     
     public function __destruct(){}

@@ -1,5 +1,5 @@
 <?php
-require_once "system/entities/entities.php";
+require_once APP_ROOT."system/entities/entities.php";
 
 class Item extends Entity{
     
@@ -12,8 +12,8 @@ class Item extends Entity{
 
 class Collection extends Entities{
     
-    public function __construct($home){
-        parent::__construct($home);
+    public function __construct($home, $key=null){
+        parent::__construct($home,$key);
     }
     
     public function __destruct(){}
@@ -31,18 +31,28 @@ class Collection extends Entities{
         return $_;
     }
     
+    public function count(){
+        $collection = $this->get_collection();
+        return count($collection);
+    }
+    
     public function add($entity){
-        if(empty($item->key)){
-            die("error");
-        }
+        $this->link($entity);
     }
     
     public function find($key){
         return file_exists($this->self.$key);
     }
     
-    public function load(){
-        return;
+    public function in($_entity){
+        
+        $collection = $this->get_collection();
+        $in = false;
+        foreach($collection as $entity){
+            $in = $in || ($entity = $_entity);
+        }
+        
+        return $in;
     }
     
 }
