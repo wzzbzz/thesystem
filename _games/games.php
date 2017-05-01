@@ -25,6 +25,11 @@ class Game extends Entity{
     }
     
     public function add_admin($user){
+        
+        if(!is_object($user)){
+            $user = new User($user,$this->admins->self);
+        }
+        
         $this->admins->add($user);
     }
     
@@ -63,8 +68,10 @@ class Game extends Entity{
     }
     
     public function is_admin($user){
+        die("1");
         //note this is a result of some slop upstream.
         //Code this away:   Make a decision, create objects earlier and store, or store keys and load objects on execution
+        
         if (is_object($user)){
             
         }

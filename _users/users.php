@@ -5,17 +5,9 @@ require_once APP_ROOT."system/collections/collections.php";
 
 class User extends Entity{
     
-    public $username;
+    public $name;
     public $display_name;
     public $password;
-    public $roles;
-    
-    public function __construct($key,$home){
-        
-        parent::__construct($key,$home);
-        $this->username = $key;
-        
-    }
     
     public function login(){
         @session_start();
@@ -35,11 +27,6 @@ class User extends Entity{
 
 class Users extends Collection{
     
-    public function __construct($home, $key=null){
-        
-        parent::__construct($home,$key);
-    }
-    
     public function get_users(){
         $users = parent::get_collection();
         $_ = array();
@@ -50,14 +37,25 @@ class Users extends Collection{
         return $_;
     }
     
+    public function create_user($name){
+        if($this->user_exists($name)){
+            $user = new User($name);
+            return $this->load($this->path);
+        }
+    }
+    
     public function user_exists($username){
+        if(is_object($username)){
+            $username= $username->username;
+        }
+        
         $user_dir = $this->self.$username;
         return (file_exists($user_dir) && is_dir($user_dir));
         
     }
 
     
-    public function delete($username){
+    public function delete_1($username){
         if(!$this->user_exists($username)){
             return false;
         }
@@ -66,10 +64,6 @@ class Users extends Collection{
         }
           
     }
-   
 
-
-    
-    public function __destruct(){}
     
 }

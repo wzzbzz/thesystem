@@ -9,6 +9,14 @@ class Image extends Item{
             parent::__construct($key,$home);
         }
         public function __destruct(){}
+        
+        public function url(){
+            return str_replace(APP_ROOT,BASEURL,$this->self).$this->key;
+        }
+        
+        public function img(){
+            echo "<img src=\"{$this->url()}\" />";
+        }
 }
 
 class Images extends Collection{

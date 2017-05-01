@@ -1,55 +1,91 @@
 <?php
 
-class Entity {
 
-    public $key;
-    public $home;  // CONTAINING FOLDER
-    public $self;
+class System{
     
-    
-    public function __construct($key,$home){
-        
-        $this->key = $key;
-        $this->home = $home;
-        $this->self = $home.$key."/";
-        
-        if ($this->__exists()){
-            $this->load();
+    public function __construct($path){
+        // validate path as a valid system root
+        if(!file_exists($path)){
+            // can specify alternate paths
+            // deal with it then.
         }
+        
+        define("SYSTEM_ROOT",rtrim($path,"/")."/");
+        define ("ENTITIES_ROOT", $path."_entities/");
+        
     }
     
-    public function __destruct(){
+}
+
+class Entity {
+
+    //permanent elements
+    public $key;  // relatively uniq
+    public $source; // container for link
+   
+    // maintain list of references to this entity
+    // when no links, entity "dies";
+    public $links; // list of links to source entity 
+    
+    
+    // now requiring : NAME and CONTEXT
+    // NO GHOSTING
+    // getting rid of create() step, either load or create new in memory.
+    public function __construct($name=null,$path=null){
+        
+        // check for existing entity at path:
+        if($path && $name){
+            
+            if(!file_exists($path)){
+                return false;
+            }
+            
+            $path = rtrim($path,"/")."/";
+            $key = $path.$name;
+    
+            if(file_exists($key)){
+                
+                $this->load($key);
+                
+                return;
+            }
+            
+            else{
+                $this->create();
+                $this->name = $name;
+                $this->save();
+                $this->link($key);
+            }
+
+        }
+        
+        else{
+            $this->create();
+            $this->name = $name;
+            $this->save();
+        }
         
     }
     
     public function create(){
-        
-        // fail if housing folder nonexistent.  Also check for write perms.
-        
-        if(!file_exists($this->home)){
-            return false;
-        }
-        
-        if(!file_exists($this->self))// create containing folder.
-            mkdir($this->self);
-
-        $vars = get_object_vars($this);
-        
-        // create ancillaries
-        foreach($vars as $key=>$var){
-            if(is_object($var)){
-                $var->create();
-            }            
-        }
-        
-        $this->save();
-        
-        return true;
+         $this->key = uniqid();
+         $this->source = ENTITIES_ROOT.$this->key."/";
+         $this->links = array();
+         mkdir($this->source);
     }
     
+    public function __destruct(){
+
+        if(count($this->links)==0 && file_exists($this->source)){
+            if(strpos($this->source, APP_ROOT)>-1)
+                removeDirectory($this->source);
+        }
+        
+    }
+
     public function save(){
         
-        $filename = $this->self."/info.json";
+        $filename = $this->source."info.json";
 
         $fh = fopen($filename,"w");
         
@@ -59,15 +95,17 @@ class Entity {
         
     }
       
-    public function load(){
+    public function load($path){
         
-        if(is_link($this->self)){
-            diebug("THIS WAS FORESEEN BUT UNABLE TO TRIGGER...UNTIL NOW!!! What happens when PHP won't follow the symlink?");
+        // make sure we've got our trailing slash
+        $path = rtrim($path,"/")."/";
+        
+        if(!file_exists($path)){
+            return false;
         }
-        else{
-
-            $info = json_decode(file_get_contents($this->self."info.json"));
-        }
+        
+        $info = json_decode(file_get_contents($path."info.json"));
+        
         if(empty($info))
             return;
         
@@ -80,7 +118,7 @@ class Entity {
     }
     
     public function __exists(){
-        return file_exists($this->self) && file_exists($this->self."info.json");
+        return file_exists($this->path) && file_exists($this->path."info.json");
     }
     
     
@@ -99,45 +137,18 @@ class Entity {
     }
     
     
-    // create a link at $destination which points to $this->self;
-    public function link($destination){
-        link($this->self, $destination);
-    }
-   
-}
-
-class Entities extends Entity{
-    
-    private $entities;
-    
-    public function __construct($home, $key=null){
-        if(empty($key)){
-            $key = "_".strtolower(get_class($this));
-
-        }
-        else{
-            $key = "_".$key;
-        }
-        parent::__construct($key, $home);
-    }
-    
-    public function __destruct(){}
-    
-    public function __create(){
-        // make directory
-        // extensions will create their own homes within it.
-        parent::__construct($key);
+    // create a link at $destination which points to $this->home;
+    public function link($dest){
         
-    }
-    
-    public function link($entity){
-        if(!file_exists($this->self.$entity->key)){
-            symlink($entity->self, $this->self.$entity->key);
-            return true;
-        }
-        else{
+        // existing link - figure out how to resolve conflict
+        if (file_exists($dest)){
             return false;
         }
+        symlink(rtrim($this->source,"/"), $dest);
+        $this->links[] = $dest;
+        $this->save();
+        
     }
+   
 }
 
