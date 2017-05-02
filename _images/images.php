@@ -22,7 +22,7 @@ class Image extends Item{
         }
         
         public function img(){
-            echo "<img src=\"{$this->url()}\" />";
+            echo "<img src=\"{$this->url()}\" width=\"300\"/>";
         }
 }
 
