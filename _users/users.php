@@ -8,10 +8,16 @@ class User extends Entity{
     public $name;
     public $display_name;
     public $password;
+    public $path;
+    
+    public function __construct($name=null, $path=null){
+        parent::__construct($name, $path);
+        $this->save();
+    }
     
     public function login(){
         @session_start();
-        $_SESSION['username'] = $this->username;
+        $_SESSION['username'] = $this->name;
     }
     public function logout(){
         session_destroy();
@@ -19,7 +25,7 @@ class User extends Entity{
     public function set_password($password){
         $this->password = password_hash($password, PASSWORD_DEFAULT, ['cost' => 12]);
     }
-    public function validate($password){    
+    public function validate($password){
         return password_verify($password, $this->password);
     }
 }
@@ -31,7 +37,7 @@ class Users extends Collection{
         $users = parent::get_collection();
         $_ = array();
         foreach($users as $user){
-            $_[] = new User($user, $this->self);
+            $_[] = new User($user, $this->path);
         }
         
         return $_;
@@ -49,7 +55,7 @@ class Users extends Collection{
             $username= $username->username;
         }
         
-        $user_dir = $this->self.$username;
+        $user_dir = $this->path.$username;
         return (file_exists($user_dir) && is_dir($user_dir));
         
     }

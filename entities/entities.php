@@ -4,15 +4,18 @@
 class System{
     
     public function __construct($path){
+        $path = rtrim($path,"/")."/";
         // validate path as a valid system root
         if(!file_exists($path)){
             // can specify alternate paths
             // deal with it then.
         }
         
-        define("SYSTEM_ROOT",rtrim($path,"/")."/");
+        define("SYSTEM_ROOT",$path);
         define ("ENTITIES_ROOT", $path."_entities/");
-        
+        if(!file_exists(ENTITIES_ROOT)){
+            mkdir(ENTITIES_ROOT);
+        }
     }
     
 }
@@ -25,7 +28,10 @@ class Entity {
    
     // maintain list of references to this entity
     // when no links, entity "dies";
-    public $links; // list of links to source entity 
+    public $links; // list of links to source entity
+    
+    // current symbolic path
+    public $path;
     
     
     // now requiring : NAME and CONTEXT
@@ -35,8 +41,9 @@ class Entity {
         
         // check for existing entity at path:
         if($path && $name){
-            
+
             if(!file_exists($path)){
+
                 return false;
             }
             
@@ -55,6 +62,8 @@ class Entity {
                 $this->name = $name;
                 $this->save();
                 $this->link($key);
+                $this->path = rtrim($key,"/")."/";
+                
             }
 
         }
@@ -74,11 +83,21 @@ class Entity {
          mkdir($this->source);
     }
     
+    public function delete(){
+        foreach($this->links as $i=>$link){
+            unlink($link);
+            unset($this->links[$i]);
+            return;
+        }
+    }
     public function __destruct(){
 
         if(count($this->links)==0 && file_exists($this->source)){
-            if(strpos($this->source, APP_ROOT)>-1)
+            if(strpos($this->source, APP_ROOT)>-1){
+            
                 removeDirectory($this->source);
+                
+            }
         }
         
     }
@@ -103,7 +122,7 @@ class Entity {
         if(!file_exists($path)){
             return false;
         }
-        
+
         $info = json_decode(file_get_contents($path."info.json"));
         
         if(empty($info))
@@ -114,11 +133,15 @@ class Entity {
                $this->$key = $value;
             }
         }
+        
+        $this->path = $path;
 
     }
     
     public function __exists(){
-        return file_exists($this->path) && file_exists($this->path."info.json");
+        //note:  handle this slash thing gracefully in constructors.
+        $path = rtrim($this->path,"/")."/";
+        return file_exists($path) && file_exists($path."info.json");
     }
     
     
@@ -142,12 +165,33 @@ class Entity {
         
         // existing link - figure out how to resolve conflict
         if (file_exists($dest)){
-            return false;
+            return;
         }
+        try{
         symlink(rtrim($this->source,"/"), $dest);
+        }
+        catch(Exception $e){
+            debug($dest);
+            diebug(rtrim($this->source,"/"));
+        }
         $this->links[] = $dest;
         $this->save();
         
+    }
+    
+    public function unlink($dest){
+        
+        if(strpos($this->source, APP_ROOT)>-1 && is_link($dest)){
+            $item = array_search($dest,$this->links);
+            if($item!==false){
+                unlink($dest);
+                unset($this->links[$item]);
+                $this->save();
+            }
+            return;
+        }
+            
+        die("no");
     }
    
 }

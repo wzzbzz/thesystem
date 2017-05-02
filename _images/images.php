@@ -5,13 +5,20 @@ require_once APP_ROOT."system/collections/collections.php";
 class Image extends Item{
         public $title;
 
-        public function __construct($key = null, $home = null){
-            parent::__construct($key,$home);
+        public function __construct($path){
+            
+            $key = basename($path);
+            
+            $home = str_replace($key,"",$path);
+
+           parent::__construct($key,$home);
+            
         }
+        
         public function __destruct(){}
         
         public function url(){
-            return str_replace(APP_ROOT,BASEURL,$this->self).$this->key;
+            return str_replace(APP_ROOT,BASEURL,$this->path).$this->name;
         }
         
         public function img(){
@@ -30,11 +37,11 @@ class Images extends Collection{
         public function get_image(){
             $_ = array();
             
-            $keys = parent::get_collection($this->self);
+            $keys = parent::get_collection($this->path);
             
             foreach($keys as $key){
                
-                $image = new Image($key,$this->self);
+                $image = new Image($key,$this->path);
                 
                 $_[] = $image;
             }

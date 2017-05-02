@@ -2,8 +2,7 @@
 require_once APP_ROOT."system/entities/entities.php";
 
 class Item extends Entity{
-    public $path;
-    
+
     public function __construct($key,$home){
         parent::__construct($key,$home);
     }
@@ -12,8 +11,6 @@ class Item extends Entity{
 }
 
 class Collection extends Entity implements Countable{
-    
-    public $path;
     
     public function __construct($path, $name=null){
         
@@ -69,6 +66,24 @@ class Collection extends Entity implements Countable{
         $link = rtrim($this->path,"/")."/".$entity->name;
         
         $entity->link($link);
+        
+    }
+    
+    public function remove($entity){
+        
+        $link = rtrim($this->path,"/")."/".$entity;
+        
+        if(is_string($entity)){
+            if(file_exists($link)){
+                $entity=new Entity($entity, $this->path);
+            }
+            else{
+                // throw "DOESNT_EXIST" error
+                return false;
+            }
+        }
+        
+        $entity->unlink($link);
         
     }
     

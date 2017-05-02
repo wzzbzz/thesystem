@@ -12,11 +12,11 @@ class Game extends Entity{
     public $state;
     public $player;
     
-    public function __construct($key, $home, $args=null){
+    public function __construct($key, $home){
         parent::__construct($key,$home);
         // proper way to do this is to create Players and Admins classes.
-        $this->players = new Users($this->self,"players");
-        $this->admins = new Users($this->self, "admins");
+        $this->players = new Users($this->path,"players");
+        $this->admins = new Users($this->path, "admins");
        
     }
     
@@ -27,7 +27,7 @@ class Game extends Entity{
     public function add_admin($user){
         
         if(!is_object($user)){
-            $user = new User($user,$this->admins->self);
+            $user = new User($user,$this->admins->path);
         }
         
         $this->admins->add($user);
@@ -68,7 +68,6 @@ class Game extends Entity{
     }
     
     public function is_admin($user){
-        die("1");
         //note this is a result of some slop upstream.
         //Code this away:   Make a decision, create objects earlier and store, or store keys and load objects on execution
         
@@ -78,21 +77,26 @@ class Game extends Entity{
         return $this->admins->in($user);
     }
     
+     public function is_player($user){
+        //note this is a result of some slop upstream.
+        //Code this away:   Make a decision, create objects earlier and store, or store keys and load objects on execution
+        
+        if (is_object($user)){
+            
+        }
+        return $this->players->in($user);
+    }
     public function destroy(){}
     
 }
 
 class Games extends Collection{
     
-    public function __construct($home){
-        parent::__construct($home);       
-    }
-    
     public function get_games(){
         $games = $this->get_collection();
         $_ = array();
         foreach($games as $game){
-            $_[] = new Game($game, $this->self);
+            $_[] = new Game($game, $this->path);
         }
         return $_;
     }
