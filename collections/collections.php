@@ -25,7 +25,7 @@ class Collection extends Entity implements Countable{
         
         parent::__construct($name, $path);
         
-        $this->path = rtrim($path,"/")."/".$name;
+        $this->path = rtrim($path,"/")."/".$name."/";
         
         $this->save();
 
@@ -33,6 +33,10 @@ class Collection extends Entity implements Countable{
     
     public function get_collection(){
         $_ = array();
+        if($this->path == '/_encouragements')
+        {
+            diebug(debug_backtrace());
+        }
         
         $items = new DirectoryIterator($this->path);
         foreach($items as $item){
@@ -57,7 +61,9 @@ class Collection extends Entity implements Countable{
     }
     
     public function count(){
+
         $collection = $this->get_collection();
+
         return count($collection);
     }
     
@@ -98,17 +104,19 @@ class Collection extends Entity implements Countable{
         $collection = $this->get_collection();
         $in = false;
         foreach($collection as $entity){
-            $in = $in || ($entity == $_entity->key);
+
+            $in = $in || ($entity == $_entity->name);
         }
         
         return $in;
     }
     
     
-    public function add_2($entity){
-        $this->link($entity);
-        $entity->links[] = $entity->home;
+    public function random(){
+        $c = $this->get_collection();
+        $item = array_rand($c);
         
+        return $c[$item];
     }
     
     

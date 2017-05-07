@@ -51,11 +51,13 @@ class Users extends Collection{
     }
     
     public function user_exists($username){
+        
         if(is_object($username)){
             $username= $username->username;
         }
         
         $user_dir = $this->path.$username;
+        
         return (file_exists($user_dir) && is_dir($user_dir));
         
     }

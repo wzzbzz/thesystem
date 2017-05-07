@@ -15,13 +15,17 @@ class Game extends Entity{
     public function __construct($key, $home){
         parent::__construct($key,$home);
         // proper way to do this is to create Players and Admins classes.
-        $this->players = new Users($this->path,"players");
+        $this->players = new Players($this->path,"players");
         $this->admins = new Users($this->path, "admins");
        
     }
     
     public function add_player($user){
         $this->players->add($user);
+    }
+    
+    public function set_player($user){
+        $this->player = new Player($user->name, $this->players->path);
     }
     
     public function add_admin($user){
@@ -80,7 +84,7 @@ class Game extends Entity{
      public function is_player($user){
         //note this is a result of some slop upstream.
         //Code this away:   Make a decision, create objects earlier and store, or store keys and load objects on execution
-        
+
         if (is_object($user)){
             
         }

@@ -20,7 +20,7 @@ class System{
     
 }
 
-class Entity {
+class Entity extends stdClass{
 
     //permanent elements
     public $key;  // relatively uniq
@@ -123,15 +123,13 @@ class Entity {
             return false;
         }
 
-        $info = json_decode(file_get_contents($path."info.json"));
+        $info = json_decode(file_get_contents($path."info.json"),true);
         
         if(empty($info))
             return;
         
         foreach($info as $key=>$value){
-            if(!is_object($value)){
                $this->$key = $value;
-            }
         }
         
         $this->path = $path;
@@ -167,8 +165,13 @@ class Entity {
         if (file_exists($dest)){
             return;
         }
+
+        if(array_search($dest,$this->links)!==false){
+            return true; // TBD Error System.
+        }
+        
         try{
-        symlink(rtrim($this->source,"/"), $dest);
+            symlink(rtrim($this->source,"/"), $dest);
         }
         catch(Exception $e){
             debug($dest);
@@ -192,6 +195,10 @@ class Entity {
         }
             
         die("no");
+    }
+    
+    public function container(){
+        return (rtrim(str_replace(basename($this->path),"",$this->path),"/"));
     }
    
 }
