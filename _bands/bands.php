@@ -17,7 +17,7 @@ class Band extends Entity{
     public function __construct($key, $home){
         parent::__construct($key,$home);
         //$this->members = new Users(MEMBERS);
-        $this->songs = new Songs($this->self);
+        $this->songs = new Songs($this->path);
 
     }
     public function __destruct(){
@@ -29,7 +29,7 @@ class Band extends Entity{
         $songs = $this->songs->get_songs();
         $songs = $this->songs->get_collection();
         foreach($songs as $songid){
-            $_[] = new Song( $songid,$this->songs->self );
+            $_[] = new Song( $songid,$this->songs->path );
         }
         return $_;
     }
@@ -44,9 +44,6 @@ class Band extends Entity{
 
     public function delete(){}
     
-    public function load(){
-        return;
-    }
 }
 
 class Bands extends Collection{
@@ -55,10 +52,7 @@ class Bands extends Collection{
     public function __construct($args=null){
         parent::__construct($args);
     }
-    
-    public function __destruct(){
-        parent::__destruct();
-    }
+
   
     public function get_bands(){
         return parent::get_collection();
