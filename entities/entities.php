@@ -18,6 +18,26 @@ class System{
         }
     }
     
+    public function is_admin(){
+        if(!empty($this->admin))
+            return $this->admin->key == $this->user->key;
+        
+        return false;
+        
+    }
+    
+    public function show_page($pagename){
+        
+        include APP_ROOT."templates/preamble.php";
+        include APP_ROOT."templates/nav.php";
+        include APP_ROOT."templates/$pagename.php";
+        include APP_ROOT."templates/foot.php";
+        
+        
+    }
+    
+    
+    
 }
 
 class Entity extends stdClass{
