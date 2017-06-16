@@ -14,7 +14,7 @@ class Band extends Entity{
     public $shows;
     public $site;
     public $manager;
-    public function __construct($key, $home){
+    public function __construct($key='band', $home=APP_ROOT){
         parent::__construct($key,$home);
         //$this->members = new Users(MEMBERS);
         $this->songs = new Songs($this->self);
