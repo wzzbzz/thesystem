@@ -1,6 +1,27 @@
 <?php
 
 
+class Site{
+        
+        
+    public function is_admin(){
+        if(!empty($this->admin))
+            return $this->admin->key == $this->user->key;
+        
+        return false;
+        
+    }
+    
+    public function show_page($pagename){
+        include APP_ROOT."templates/preamble.php";
+        include APP_ROOT."templates/nav.php";
+        include APP_ROOT."templates/$pagename.php";
+        include APP_ROOT."templates/foot.php";
+    }
+    
+}
+
+
 class System{
     
     public function __construct($path){
@@ -16,7 +37,11 @@ class System{
         if(!file_exists(ENTITIES_ROOT)){
             mkdir(ENTITIES_ROOT);
         }
+        
     }
+
+    
+    
     
 }
 
