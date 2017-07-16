@@ -3,6 +3,7 @@
 require_once APP_ROOT."system/collections/collections.php";
 require_once APP_ROOT."system/_users/users.php";
 require_once APP_ROOT."system/_songs/songs.php";
+require_once APP_ROOT."system/_records/records.php";
 
 class Member extends User{
         
@@ -12,12 +13,15 @@ class Band extends Entity{
     private $members;
     public $songs;
     public $shows;
+    public $albums;
+    public $videos;
     public $site;
     public $manager;
     public function __construct($key='band', $home=APP_ROOT){
         parent::__construct($key,$home);
         //$this->members = new Users(MEMBERS);
         $this->songs = new Songs($this->path);
+        $this->albums = new Albums($this->path);
 
     }
     public function __destruct(){

@@ -3,7 +3,8 @@
 
 class Site{
         
-        
+    public $admin;
+    
     public function is_admin(){
         if(!empty($this->admin))
             return $this->admin->key == $this->user->key;
@@ -24,6 +25,8 @@ class Site{
 
 class System{
     
+    public $users;
+    
     public function __construct($path){
         $path = rtrim($path,"/")."/";
         // validate path as a valid system root
@@ -34,6 +37,7 @@ class System{
         
         define("SYSTEM_ROOT",$path);
         define ("ENTITIES_ROOT", $path."_entities/");
+        
         if(!file_exists(ENTITIES_ROOT)){
             mkdir(ENTITIES_ROOT);
         }
