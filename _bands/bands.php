@@ -10,18 +10,22 @@ class Member extends User{
 }
 
 class Band extends Entity{
-    private $members;
+    public $members;
     public $songs;
     public $shows;
     public $albums;
     public $videos;
     public $site;
     public $manager;
-    public function __construct($key='band', $home=APP_ROOT){
-        parent::__construct($key,$home);
-        //$this->members = new Users(MEMBERS);
+    public $display_name;
+    
+    public function __construct($name, $path){
+        parent::__construct($name,$path);
+       
+        $this->members = new Users($this->path,"members");
         $this->songs = new Songs($this->path);
         $this->albums = new Albums($this->path);
+        $this->display_name = $this->name;
 
     }
     public function __destruct(){
@@ -53,13 +57,18 @@ class Band extends Entity{
 class Bands extends Collection{
    
     
-    public function __construct($args=null){
-        parent::__construct($args);
+    public function __construct($path,$name){
+        parent::__construct($path,$name);
     }
 
   
     public function get_bands(){
-        return parent::get_collection();
+        $bands = $this->get_collection();
+        $_ = array();
+        foreach($bands as $key=>$band){
+            $_[] = new Band($band,$this->path);
+        }
+        return $_;
     }
         
 }

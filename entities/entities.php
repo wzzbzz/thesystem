@@ -1,19 +1,21 @@
 <?php
 
-
 class Site{
         
     public $admin;
     
+    public function __construct(){}
+    public function __destruct(){}
+    
     public function is_admin(){
         if(!empty($this->admin))
             return $this->admin->key == $this->user->key;
-        
         return false;
         
     }
     
     public function show_page($pagename){
+        
         include APP_ROOT."templates/preamble.php";
         include APP_ROOT."templates/nav.php";
         include APP_ROOT."templates/$pagename.php";
@@ -22,12 +24,17 @@ class Site{
     
 }
 
-
+#what is the difference between a site and a system
+#system > Site.
 class System{
     
     public $users;
+    private $admin;
     
     public function __construct($path){
+        if(strpos($path, $_SERVER['DOCUMENT_ROOT'])===false){
+            die("bad config.");
+        }
         $path = rtrim($path,"/")."/";
         // validate path as a valid system root
         if(!file_exists($path)){
@@ -43,9 +50,6 @@ class System{
         }
         
     }
-
-    
-    
     
     public function is_admin(){
         if(!empty($this->admin))
@@ -53,6 +57,29 @@ class System{
         
         return false;
         
+    }
+    
+    public function login_user($username,$password){
+        // validate input!
+        
+        if(!$this->users->user_exists($username)){
+            die("do a bad user thing");
+        }
+        
+        $user = new User($username,$this->users->path);
+    
+        if($user->validate($password)){
+            @session_start();
+            $_SESSION['username'] = $username;
+            return true;
+        }
+        
+        
+        return false;
+    }
+    
+    public function is_logged_in_user($username){
+        return $username==$_SESSION['username'];
     }
     
     public function show_page($pagename){
@@ -66,14 +93,16 @@ class System{
     }
     
     
+    public function __destruct(){}
+    
     
 }
 
 class Entity extends stdClass{
 
     //permanent elements
-    public $key;  // relatively uniq
-    public $source; // container for link
+    public $key;  // relatively uniq within folder.
+    public $source; // container for link not sure what this means
    
     // maintain list of references to this entity
     // when no links, entity "dies";
@@ -86,16 +115,16 @@ class Entity extends stdClass{
     // now requiring : NAME and CONTEXT
     // NO GHOSTING
     // getting rid of create() step, either load or create new in memory.
-    public function __construct($name=null,$path=null){
-        
+    public function __construct($name=null,$path=null, $debug=false){
+
         // check for existing entity at path:
         if($path && $name){
-
+            
             if(!file_exists($path)){
 
                 return false;
             }
-            
+         
             $path = rtrim($path,"/")."/";
             $key = $path.$name;
     
@@ -107,7 +136,9 @@ class Entity extends stdClass{
             }
             
             else{
+                
                 $this->create();
+                
                 $this->name = $name;
                 $this->save();
                 $this->link($key);
@@ -120,13 +151,17 @@ class Entity extends stdClass{
         else{
             $this->create();
             $this->name = $name;
-            $this->save();
+            
+            //why am I saving on create?
+            //is this causing problems?
+            //$this->save();
         }
         
     }
     
     public function create(){
          $this->key = uniqid();
+         
          $this->source = ENTITIES_ROOT.$this->key."/";
          $this->links = array();
          mkdir($this->source);
@@ -220,7 +255,7 @@ class Entity extends stdClass{
         }
         
         try{
-            symlink(rtrim($this->source,"/"), $dest);
+            @symlink(rtrim($this->source,"/"), $dest);
         }
         catch(Exception $e){
             debug($dest);
@@ -250,5 +285,9 @@ class Entity extends stdClass{
         return (rtrim(str_replace(basename($this->path),"",$this->path),"/"));
     }
    
+   
+    public function get_uri(){
+        return str_replace(APP_ROOT, BASEURL, $this->path);
+    }
 }
 

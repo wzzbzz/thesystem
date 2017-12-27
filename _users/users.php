@@ -2,23 +2,29 @@
 
 require_once APP_ROOT."system/entities/entities.php";
 require_once APP_ROOT."system/collections/collections.php";
-
+require_once APP_ROOT."system/_files/files.php";
 class User extends Entity{
     
     public $name;
     public $display_name;
     public $password;
     public $path;
+    public $files;
+    public $songs;
+    public $bands;
     
     public function __construct($name=null, $path=null){
         parent::__construct($name, $path);
-        $this->save();
+        $this->files = new Files($this->path,"files");
+        $this->songs = new Songs($this->path, "songs");
+        $this->bands = new Bands($this->path, "bands");
     }
     
     public function login(){
         @session_start();
         $_SESSION['username'] = $this->name;
     }
+    
     public function logout(){
         session_destroy();
     }

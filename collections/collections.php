@@ -3,8 +3,8 @@ require_once APP_ROOT."system/entities/entities.php";
 
 class Item extends Entity{
 
-    public function __construct($key,$home){
-        parent::__construct($key,$home);
+    public function __construct($name,$path){
+        parent::__construct($name,$path);
     }
     public function __destruct(){}
     

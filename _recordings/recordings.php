@@ -5,38 +5,57 @@ class Recording extends Item{
         public $title;
         public $location;
         public $type;
-        public function __construct($key = null, $dir = null){
-            parent::__construct($key,$dir);
+        public $file;
+        
+        public function __construct($name = null, $path = null){
+            parent::__construct($name,$path);
         }
         public function __destruct(){}
         public function render(){
 
             $method = "render_".$this->type;
-            
             $this->$method();
         }
         
         public function render_embed(){
-            $code = file_get_contents( $this->self."embed.code" );
+            $code = file_get_contents( $this->path."embed.code" );
             echo  '<h3>'.$this->title.'</h3>';
+            echo '<div style="width:500px;">';
             echo $code;
+            echo '</div>';
         }
         
         public function render_file(){
-                
-            $url = str_replace(APP_ROOT, "", $this->self.$this->key);
+            
+            $file = new File($this->name, $this->location);
             
             $fh = finfo_open(FILEINFO_MIME);
-            $finfo = finfo_file($fh, $this->self.$this->key);
- 
+            $finfo = finfo_file($fh, $file->source.$file->file_name);
+            
             if( strpos( $finfo , "audio" ) > -1 ){
                 $str = '<h3>'.$this->title.'</h3>';
                 $str .= '<audio controls style="width:500px">
-                    <source src="'.BASEURL.$url.'" type="audio/mp3">
+                    <source src="'.$file->get_uri().'" type="audio/mp3">
                 </audio>';
                 
                 echo $str;
             }
+        }
+        
+        public function render_url(){                
+                $str = '<h3>'.$this->title.'</h3>';
+                $str .= '<audio controls style="width:500px">
+                    <source src="'.$this->location.'" type="audio/mp3">
+                </audio>';
+                
+                echo $str;
+        }
+        
+        public function save_embed($embed){
+                $fh = fopen($this->path."embed.code","w");
+                fwrite($fh,$embed);
+                fclose($fh);
+                return;
         }
         
 
@@ -52,11 +71,11 @@ class Recordings extends Collection{
         public function get_recordings(){
             $_ = array();
             
-            $keys = parent::get_collection($this->self);
+            $keys = parent::get_collection($this->path);
             
             foreach($keys as $key){
                
-                $recording = new Recording($key,$this->self);
+                $recording = new Recording($key,$this->path);
                 
                 $_[] = $recording;
             }

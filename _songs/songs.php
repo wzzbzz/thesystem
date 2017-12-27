@@ -10,13 +10,12 @@ class Song extends Item{
     public $recordings;
     public $lyrics;
     
-    public function __construct($key,$home){
-        parent::__construct($key,$home);
+    public function __construct($name,$path){
+        
+        parent::__construct($name,$path);
 
-        $this->recordings = new Recordings($this->self);
-        if($this->__exists()){
-            $this->load();
-        }
+        $this->recordings = new Recordings($this->path);
+        
     }
 
     
@@ -34,7 +33,7 @@ class Songs extends Collection{
         $keys = parent::get_collection();
         $_ = array();
         foreach($keys as $key){
-            $song = new Song($key,$this->self);
+            $song = new Song($key,$this->path);
             $_[] = $song;
         }
         return $_;
