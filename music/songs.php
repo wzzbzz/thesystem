@@ -1,7 +1,6 @@
 <?php
-require_once APP_ROOT."/system/entities/entities.php";
-require_once APP_ROOT."/system/collections/collections.php";
-require_once APP_ROOT."/system/_recordings/recordings.php";
+require_once APP_ROOT."/system/recordings.php";
+require_once APP_ROOT."/system/notes.php";
 
 class Song extends Item{
     
@@ -13,7 +12,7 @@ class Song extends Item{
     public function __construct($name,$path){
         
         parent::__construct($name,$path);
-
+        $this->lyrics = new Note("lyrics",$this->path);
         $this->recordings = new Recordings($this->path);
         
     }

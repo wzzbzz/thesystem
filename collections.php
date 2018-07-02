@@ -1,5 +1,4 @@
 <?php
-require_once APP_ROOT."system/entities/entities.php";
 
 class Item extends Entity{
 
