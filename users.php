@@ -1,8 +1,6 @@
 <?php
+require_once "messages.php";
 
-require_once APP_ROOT."system/entities/entities.php";
-require_once APP_ROOT."system/collections/collections.php";
-require_once APP_ROOT."system/_files/files.php";
 class User extends Entity{
     
     public $name;
@@ -12,6 +10,8 @@ class User extends Entity{
     public $files;
     public $songs;
     public $bands;
+    public $mailbox;
+    public $bank;
     
     public function __construct($name=null, $path=null){
         parent::__construct($name, $path);
@@ -32,6 +32,7 @@ class User extends Entity{
         $this->password = password_hash($password, PASSWORD_DEFAULT, ['cost' => 12]);
     }
     public function validate($password){
+        
         return password_verify($password, $this->password);
     }
 }

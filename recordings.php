@@ -1,5 +1,5 @@
 <?php
-require_once APP_ROOT."/system/collections/collections.php";
+
 
 class Recording extends Item{
         public $title;
@@ -29,20 +29,15 @@ class Recording extends Item{
             
             $file = new File($this->name, $this->location);
             
-            $fh = finfo_open(FILEINFO_MIME);
-            $finfo = finfo_file($fh, $file->source.$file->file_name);
-            
-            if( strpos( $finfo , "audio" ) > -1 ){
-                $str = '<h3>'.$this->title.'</h3>';
-                $str .= '<audio controls style="width:500px">
-                    <source src="'.$file->get_uri().'" type="audio/mp3">
-                </audio>';
-                
-                echo $str;
+            switch($file->mimetype()){
+                    
             }
+            
+            
         }
         
-        public function render_url(){                
+        public function render_url(){
+                
                 $str = '<h3>'.$this->title.'</h3>';
                 $str .= '<audio controls style="width:500px">
                     <source src="'.$this->location.'" type="audio/mp3">
