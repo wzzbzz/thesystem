@@ -1,32 +1,37 @@
 <?php
-require_once "entities.php";
-require_once "users.php";
+
+namespace thesystem;
 
 class System{
     
-    public $users;
+    private $users;
     private $admin;
     public $user;
+    protected $root;
     
-    public function __construct($path){
+    public function __construct($path,$args=[]){
         
-        if(strpos($path, $_SERVER['DOCUMENT_ROOT'])===false){
+        if(!is_writeable($path)){
             die("bad config.");
         }
         
         $path = rtrim($path,"/")."/";
-        // validate path as a valid system root
-        if(!file_exists($path)){
-            // can specify alternate paths
-            // deal with it then.
+        $sources_root = (isset($args['sources_root']))?$args['sources_root']:'sources';
+        $entities_root = (isset($args['entities_root']))?$args['entities_root']:'entities';
+        $this->root = $path;
+
+        define("SOURCES_ROOT",$path."sources/");
+        if(!file_exists(SOURCES_ROOT)){
+            mkdir(SOURCES_ROOT);
         }
-        
-        define("SYSTEM_ROOT",$path);
-        define ("ENTITIES_ROOT", $path."_entities/");
-        
+        define("ENTITIES_ROOT",$path."entities/");
+
         if(!file_exists(ENTITIES_ROOT)){
             mkdir(ENTITIES_ROOT);
         }
+    }
+
+    public function createEntity($name){
         
     }
     
@@ -89,6 +94,24 @@ class System{
 
     }
     
+    public function isInitialized(){
+        return file_exists($this->entities_root()) && is_writeable($this->entities_root());
+    }
+
+    public function entities_root(){
+        return $this->root. "entities";
+    }
+
+    public function initialize(){
+        $this->createEntitiesRoot();
+        $this->users = new Users($this->entities_root());
+        diebug($this->users);
+    }
+
+    private function createEntitiesRoot(){
+        mkdir($this->root."entities");
+        define('ENTITIES_ROOT',$this->root."entities");
+    }
     public function __destruct(){}
     
     

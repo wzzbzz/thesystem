@@ -1,17 +1,9 @@
 <?php
+namespace thesystem;
 
-class Item extends Entity{
-
-    public function __construct($name,$path){
-        parent::__construct($name,$path);
-    }
-    public function __destruct(){}
+class Collection extends Entity implements \Countable{
     
-}
-
-class Collection extends Entity implements Countable{
-    
-    public function __construct($path, $name=null){
+    public function __construct($name, $path=null, $load){
         
         
         if(empty($name)){
@@ -22,9 +14,7 @@ class Collection extends Entity implements Countable{
             $name = "_".$name;
         }
         
-        parent::__construct($name, $path);
-        
-        $this->path = rtrim($path,"/")."/".$name."/";
+        parent::__construct($name, $path, $load);
         
         $this->save();
 
@@ -32,12 +22,8 @@ class Collection extends Entity implements Countable{
     
     public function get_collection(){
         $_ = array();
-        if($this->path == '/_encouragements')
-        {
-            diebug(debug_backtrace());
-        }
         
-        $items = new DirectoryIterator($this->path);
+        $items = new \DirectoryIterator($this->path());
         foreach($items as $item){
           if($item->isDir() && !$item->isDot()){
               $_[] = $item->__toString();
@@ -52,8 +38,7 @@ class Collection extends Entity implements Countable{
         $result = parent::create();
         
         if($result){
-            $this->link($this->path);
-            $this->links[]=$this->path;
+            $this->link($this->path());
             $this->save();
         }
         return $result;
@@ -68,7 +53,7 @@ class Collection extends Entity implements Countable{
     
     public function add($entity){
         
-        $link = rtrim($this->path,"/")."/".$entity->name;
+        $link = rtrim($this->path(),"/")."/".$entity->name(); 
         
         $entity->link($link);
         
@@ -76,17 +61,14 @@ class Collection extends Entity implements Countable{
     
     public function remove($entity){
         
-        $link = rtrim($this->path,"/")."/".$entity;
+        
         
         if(is_string($entity)){
-            if(file_exists($link)){
-                $entity=new Entity($entity, $this->path);
-            }
-            else{
-                // throw "DOESNT_EXIST" error
-                return false;
-            }
+            $link = rtrim($this->path(),"/")."/".$entity;
         }
+        else{
+            $link = rtrim($this->path(),"/")."/".$entity->name();
+        }            
         
         $entity->unlink($link);
         

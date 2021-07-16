@@ -1,124 +1,125 @@
 <?php
 
-class Site{
-        
-    public $admin;
-    
-    public function __construct(){}
-    public function __destruct(){}
-    
-    public function is_admin(){
-        if(!empty($this->admin))
-            return $this->admin->key == $this->user->key;
-        return false;
-        
-    }
-    
-    public function show_page($pagename){
-        
-        include APP_ROOT."templates/preamble.php";
-        include APP_ROOT."templates/nav.php";
-        include APP_ROOT."templates/$pagename.php";
-        include APP_ROOT."templates/foot.php";
-    }
-    
-}
-
 #what is the difference between a site and a system
 #system > Site.
+namespace thesystem;
 
-class Entity extends stdClass{
+class Entity extends \stdClass{
 
     //permanent elements
     public $key;  // relatively uniq within folder.
-    public $source; // container for link not sure what this means
-   
+    public $source; // symlink to ENTITIES_ROOT/UNIQUID/  contains data.json
+    
     // maintain list of references to this entity
     // when no links, entity "dies";
-    public $links; // list of links to source entity
+    public $links = []; // list of links to source entity
     
     // current symbolic path
-    public $path;
+    public function path(){
+        return ENTITIES_ROOT.$this->branch().$this->name();
+    }
+
+    private $name;
+    public function name(){
+        return $this->name;
+    }
     
+    private $branch;
+    public function branch(){        
+        return (empty($this->branch))?"":rtrim($this->branch,"/")."/";
+    }
     
     // now requiring : NAME and CONTEXT
     // NO GHOSTING
     // getting rid of create() step, either load or create new in memory.
-    public function __construct($name=null,$path=null, $debug=false){
+    public function __construct($name,$branch="", $load=true ){
+        
+        if(empty($name))
+            return  false;
 
-        // check for existing entity at path:
-        if($path && $name){
-            
-            if(!file_exists($path)){
-
-                return false;
-            }
-         
-            $path = rtrim($path,"/")."/";
-            $key = $path.$name;
-    
-            if(file_exists($key)){
-                
-                $this->load($key);
-                
-                return;
-            }
-            
-            else{
-                
-                $this->create();
-                
-                $this->name = $name;
-                $this->save();
-                $this->link($key);
-                $this->path = rtrim($key,"/")."/";
-                
-            }
-
+        $this->name = $name;
+        $this->branch = $branch;        
+        
+        if($load){
+            $this->loadIfExistsElseCreate();
         }
         
+    }
+
+    public function loadIfExists(){
+        
+        if($this->exists()){
+
+            $this->load();
+        }
         else{
-            $this->create();
-            $this->name = $name;
-            
-            //why am I saving on create?
-            //is this causing problems?
-            //$this->save();
         }
-        
+    }
+
+    public function createIfNonExistant(){
+        if(!$this->exists()){
+
+            $this->create();
+        }
+        else{
+            
+        }
+    }
+
+    public function loadIfExistsElseCreate(){
+
+        if($this->exists()){
+            $this->load();
+        }
+        else{
+            
+            $this->create();
+            $this->link($this->path());
+
+        }
+    
+    }
+    public function exists(){
+        return file_exists($this->path());
     }
     
     public function create(){
-         $this->key = uniqid();
-         
-         $this->source = ENTITIES_ROOT.$this->key."/";
-         $this->links = array();
-         mkdir($this->source);
+        
+        $this->key = uniqid();
+        $this->source = SOURCES_ROOT.$this->key."/";
+        $this->links = array();
+        mkdir($this->source);
+        $this->save();
     }
     
     public function delete(){
+        
         foreach($this->links as $i=>$link){
+            
             unlink($link);
             unset($this->links[$i]);
+            
             return;
         }
     }
     public function __destruct(){
-
+        return;
         if(count($this->links)==0 && file_exists($this->source)){
-            if(strpos($this->source, APP_ROOT)>-1){
             
                 removeDirectory($this->source);
-                
-            }
         }
         
     }
 
     public function save(){
+       
         
-        $filename = $this->source."info.json";
+        if(!file_exists($this->source)){
+            return;
+        }
 
+        $filename = $this->source."info.json";
+        
         $fh = fopen($filename,"w");
         
         fwrite($fh, json_encode($this));
@@ -127,16 +128,16 @@ class Entity extends stdClass{
         
     }
       
-    public function load($path){
+    public function load(){
         
         // make sure we've got our trailing slash
-        $path = rtrim($path,"/")."/";
         
-        if(!file_exists($path)){
+        
+        if(!file_exists($this->path())){
             return false;
         }
 
-        $info = json_decode(file_get_contents($path."info.json"),true);
+        $info = json_decode(file_get_contents($this->path()."/info.json"),true);
         
         if(empty($info))
             return;
@@ -145,7 +146,6 @@ class Entity extends stdClass{
                $this->$key = $value;
         }
         
-        $this->path = $path;
 
     }
     
@@ -155,8 +155,18 @@ class Entity extends stdClass{
         return file_exists($path) && file_exists($path."info.json");
     }
     
+    public function add_attribute($key,$val){
+        $this->$key=$val;
+    }
     
-    
+    public function remove_attribute($key){
+        unset($this->$key);
+    }
+
+    public function get_attribute($key){
+        return $this->$key;
+    }
+
     // recursively determine whether an entity is of a class tree.
     public function is_class($class){
         if(get_class($this)==$class){
@@ -178,34 +188,37 @@ class Entity extends stdClass{
         if (file_exists($dest)){
             return;
         }
-
         if(array_search($dest,$this->links)!==false){
             return true; // TBD Error System.
         }
         
         try{
-            @symlink(rtrim($this->source,"/"), $dest);
+            symlink(rtrim($this->source,"/"), $dest);
         }
         catch(Exception $e){
             debug($dest);
             diebug(rtrim($this->source,"/"));
         }
+        diebug("hi");
         $this->links[] = $dest;
         $this->save();
+        
         
     }
     
     public function unlink($dest){
+  
+        $item = array_search($dest,$this->links);
         
-        if(strpos($this->source, APP_ROOT)>-1 && is_link($dest)){
-            $item = array_search($dest,$this->links);
-            if($item!==false){
-                unlink($dest);
-                unset($this->links[$item]);
-                $this->save();
-            }
-            return;
+        if($item!==false){
+            unlink($dest);
+            unset($this->links[$item]);
+            
+            $this->save();
+            
         }
+        return;
+    
             
         die("no");
     }
