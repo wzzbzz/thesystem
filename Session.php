@@ -12,13 +12,13 @@ class Session{
         $_SESSION['username'] = $username;
     }
     public function isLoggedInUser($username){
-        return $_SESSION['username'] == $username;
+        return $_SESSION[ 'username' ] == $username;
     }
     public function loggedInUser(){
-        return $_SESSION['username'];
+        return isset( $_SESSION['username'] ) && !empty( $_SESSION['username'] ) ? $_SESSION['username'] : false;
     }
     public function clearUser(){
-        unset($_SESSION['username']);
+        unset($_SESSION[ 'username' ]);
     }
 
 }

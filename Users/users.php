@@ -10,6 +10,7 @@ class Users extends \thesystem\Collection{
     public function get_users(){
         $users = parent::get_collection();
         $_ = array();
+        diebug($this);
         foreach($users as $user){
             $_[] = new User($user, $this->path);
         }

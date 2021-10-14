@@ -1,34 +1,85 @@
 <?php
 
+/*
+*   
+*
+*/
 namespace thesystem;
 
 class System{
     
+    // root Users collection;
     private $users;
+
+    // admin user;
     private $admin;
-    public $user;
-    protected $root;
-    
-    public function __construct($path,$args=[]){
+
+    // router object for directing traffic to Actions or Views;
+    private $router;
+
+    // handles configuration
+    private $config;
+
+    // Probably not used since Router directly
+    public $view;
+
+    // currently logged in user
+    public $current_user;
+
+
+    /*
+     *
+     */ 
+    public function __construct(){
+
+        // load config object from doc root config.json
+        $this->config = new \thesystem\Config\Config(json_decode(file_get_contents($_SERVER['DOCUMENT_ROOT']."/config.json")));
         
-        if(!is_writeable($path)){
+        $this->prepare();
+        // is the system root in a valid location
+           
+    }
+
+    /*
+     *  These methods validate / prepare system setup
+     */ 
+
+    public function prepare(){
+
+        if(!$this->config->validate()){
             die("bad config.");
+        } 
+
+        if( !file_exists( $this->references() ) ){
+            mkdir($this->references());
         }
         
-        $path = rtrim($path,"/")."/";
-        $sources_root = (isset($args['sources_root']))?$args['sources_root']:'sources';
-        $entities_root = (isset($args['entities_root']))?$args['entities_root']:'entities';
-        $this->root = $path;
-
-        define("SOURCES_ROOT",$path."sources/");
-        if(!file_exists(SOURCES_ROOT)){
-            mkdir(SOURCES_ROOT);
+        if( !file_exists( $this->entities() ) ){
+            mkdir($this->entities());
         }
-        define("ENTITIES_ROOT",$path."entities/");
 
-        if(!file_exists(ENTITIES_ROOT)){
-            mkdir(ENTITIES_ROOT);
-        }
+
+    }
+
+    /*
+     *  helper functions for file paths
+     */
+    // return path to root
+    public function root(){
+        return $this->config->root();
+    }
+
+    // return path to references
+    public function references(){
+        return $this->root()."references/";
+    }
+
+    public function entities(){
+        return $this->root()."entities/";
+    }
+
+    public function entitiesRoot(){
+
     }
 
     public function createEntity($name){
@@ -41,50 +92,6 @@ class System{
         
         return false;
         
-    }
-    
-    public function login_user($username,$password){
-        // validate input!
-        
-        if(!$this->users->user_exists($username)){
-            die("do a bad user thing");
-        }
-        
-        $user = new User($username,$this->users->path);
-        
-        if($user->validate($password)){
-            @session_start();
-            $_SESSION['username'] = $username;
-            return true;
-        }
-        
-        
-        return false;
-    }
-    
-    
-    public function is_logged_in_user($username){
-        if(!empty($_SESSION['username'])){
-            if($this->users->user_exists($_SESSION['username'])){
-                $this->user = new User($_SESSION['username'], $this->users->path);
-            }
-        }
-        return $username==$_SESSION['username'];
-    }
-    
-    
-    // establish a session username using PHP sessions.
-    public function establish_session(){
-         
-        if(!empty($_SESSION['username'])){
-    
-            if($this->users->user_exists($_SESSION['username'])){
-                
-                // set current user for objects
-                $this->user = new User($_SESSION['username'], $this->users->path);
-        
-            }
-        }
     }
     
     // over ride on object levels
@@ -110,9 +117,31 @@ class System{
 
     private function createEntitiesRoot(){
         mkdir($this->root."entities");
-        define('ENTITIES_ROOT',$this->root."entities");
     }
     public function __destruct(){}
+
+    public function selfDestruct(){
+        // obviously this will be a process which will require a One-Time-Key email password
+        // validation routine;  but it's useful for development.
+
+        removeDirectory(ENTITIES_ROOT);
+        removeDirectory(SOURCES_ROOT);
+
+        echo "boom.  it's gone";
+        die;
+
+    }
     
+    public function setView(){
+        
+        $this->view = $router->getView($this);
+    }
+
+    public function routeRequest(){
+        $router = new \thesystem\Router\Router($this);
+        $router->routeRequest();
+    }
+    
+
     
 }

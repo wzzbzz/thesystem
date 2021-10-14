@@ -32,14 +32,16 @@ class Entity extends \stdClass{
     // now requiring : NAME and CONTEXT
     // NO GHOSTING
     // getting rid of create() step, either load or create new in memory.
-    public function __construct($name,$branch="", $load=true ){
+    public function __construct( $name, $branch="", $load=true ){
         
         if(empty($name))
             return  false;
 
         $this->name = $name;
         $this->branch = $branch;        
-        
+        if(!$load){
+            diebug(debug_backtrace());
+        }
         if($load){
             $this->loadIfExistsElseCreate();
         }
@@ -103,7 +105,7 @@ class Entity extends \stdClass{
         }
     }
     public function __destruct(){
-        return;
+        
         if(count($this->links)==0 && file_exists($this->source)){
             
                 removeDirectory($this->source);
@@ -131,7 +133,6 @@ class Entity extends \stdClass{
     public function load(){
         
         // make sure we've got our trailing slash
-        
         
         if(!file_exists($this->path())){
             return false;
@@ -199,7 +200,7 @@ class Entity extends \stdClass{
             debug($dest);
             diebug(rtrim($this->source,"/"));
         }
-        diebug("hi");
+        
         $this->links[] = $dest;
         $this->save();
         

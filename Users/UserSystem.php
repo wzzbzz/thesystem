@@ -10,13 +10,25 @@ class UserSystem extends \thesystem\System{
     private $fileSystem;
     
 
-    public function __construct($path,$args=[]){
+    public function __construct($args=[]){
         
-        parent::__construct($path,$args=[]);
+        parent::__construct();
+
+        $this->setUsersRoot();
+        $this->setFileSystem();
         $this->users = new \thesystem\Users\Users( "users", "", true);
-        //$this->files = new \thesystem\Files\Files( "files", "", true);
-        $this->fileSystem = new \thesystem\FileSystem(WEB_ROOT, 'uploads');
+        $this->fileSystem = new \thesystem\FileSystem($_SERVER['DOCUMENT_ROOT'], 'uploads');
+
+        // universal index for files
+        $this->files = new \thesystem\Files\Files('files', "", true);
         $this->session = new \thesystem\Session();
+    }
+
+    public function createSysop($email,$password){
+        $user = new \thesystem\Users\User("sysop");
+        $user->setEmail($email);
+        $user->setPassword($password);
+        return $user;
     }
 
     public function addUser($username){
@@ -28,10 +40,8 @@ class UserSystem extends \thesystem\System{
 
     public function getUser($username){
         
-        $user = new \thesystem\Users\User($username, $this->users->name(),false);
-        
+        $user = new User($username, $this->users->name());
         if($user->exists()){
-            $user->load();
             return $user;
         }
         else
@@ -39,11 +49,15 @@ class UserSystem extends \thesystem\System{
     
     }
 
+    public function usersList(){
+        return $this->users->get_users();
+    }
     public function loginUser($username,$password){
-
+        
         try{
+            
             $user = $this->getUser($username);
-            if(!$user->exists()){
+            if(!$user || !$user->exists()){
                 throw new \Exception();
             }
         }
@@ -85,11 +99,16 @@ class UserSystem extends \thesystem\System{
     
     public function handleUpload(){
         foreach($_FILES as $file){
-            $filepath = $this->fileSystem->handleUpload($file);
+            $fileinfo = $this->fileSystem->handleUpload($file);
         }
+        $file_path = $fileinfo->file_name;
+        diebug($_SERVER);
+        $url = str_replace(WEB_ROOT,"",$file_path);
+
     }
     public function __destruct(){}
     public function init($path){
         
     }
+
 }

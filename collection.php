@@ -3,7 +3,7 @@ namespace thesystem;
 
 class Collection extends Entity implements \Countable{
     
-    public function __construct($name, $path=null, $load){
+    public function __construct($name, $path=null, $load=true){
         
         
         if(empty($name)){

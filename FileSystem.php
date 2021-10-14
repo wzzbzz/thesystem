@@ -4,12 +4,16 @@ namespace thesystem;
 class FileSystem{
     private $path;
     public function __construct($root, $name="files"){
-        
+		
         if(!file_exists($root)){
             return false;
         }
         $root = rtrim($root,"/")."/";
         $this->path = $root.$name."/";
+		
+		if(!file_exists($this->path)){
+			mkdir($this->path);
+		}
         
     }
 
@@ -23,7 +27,7 @@ class FileSystem{
 				!isset($file['error']) ||
 				is_array($file['error'])
 			) {
-				throw new RuntimeException('Invalid parameters.');
+				throw new \RuntimeException('Invalid parameters.');
 			}
 		
 			// Check $file['error'] value.
@@ -41,7 +45,7 @@ class FileSystem{
 		
 			// You should also check filesize here. 
 			if ($file['size'] > 1000000000) {
-				throw new RuntimeException('Exceeded filesize limit.');
+				throw new \RuntimeException('Exceeded filesize limit.');
 			}
 		
 			// DO NOT TRUST $file['mime'] VALUE !!
@@ -54,9 +58,8 @@ class FileSystem{
 				$this->file_types(),
 				true
 			)) {
-				throw new RuntimeException('Invalid file format.');
+				throw new \RuntimeException('Invalid file format.');
 			}
-		
 			// You should name it uniquely.
 			// DO NOT USE $file['name'] WITHOUT ANY VALIDATION !!
 			// On this example, obtain safe unique name from its binary data.
@@ -65,7 +68,7 @@ class FileSystem{
 					uniqid(),
 					$ext);
 
-            diebug(is_writeable($unique_name));
+            
 			if (!move_uploaded_file(
 				$file['tmp_name'],
 				$unique_name
@@ -74,11 +77,11 @@ class FileSystem{
 			}
 			$return = new \stdClass();
 			$return->file_name = $unique_name;
-			$return->mime_type = $file->type;
-			diebug($return);
+			$return->mime_type = $file['type'];
+		
 			return $return;
 		
-		} catch (RuntimeException $e) {
+		} catch (\RuntimeException $e) {
 		
 			echo $e->getMessage();
 		
